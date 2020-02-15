@@ -13,8 +13,14 @@ function shuffle(array) {
 }
 
 function App() {
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    smallest: window.innerWidth > window.innerHeight ? "vh" : "vw"
+  })
   const [numRows, setNumRows] = useState(4);
   const [numCols, setNumCols] = useState(4);
+  // eslint-disable-next-line
   const [images, setImages] = useState(animals);
   const [gameArray, setGameArray] = useState([]);
   const [flippedData, setFlippedData] = useState({});
@@ -24,21 +30,35 @@ function App() {
 
   useEffect(() => {
     init();
+    window.addEventListener("resize", updateOnResize)
+    function updateOnResize() {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        smallest: window.innerWidth > window.innerHeight ? "vh" : "vw"
+      })
+    }
+    return () => window.removeEventListener("resize", updateOnResize)
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     console.log("FINAL:", checkIfComplete());
+    // eslint-disable-next-line
   }, [score])
 
-  function init() {
+  function init(rows=numRows, cols=numCols) {
     const newGameArray = [];
     const newFlippedData = {};
-    const pairs = numRows * numCols * 0.5;
+    const pairs = Math.floor(rows * cols * 0.5);
     shuffle(images);
     for (let i = 0; i < pairs; i++) {
       newGameArray.push(i, i);
     }
     shuffle(newGameArray);
+    if (rows * cols % 2) {
+      newGameArray.splice(pairs, 0, null)
+    }
     setGameArray(newGameArray);
     for (let i = 0; i < newGameArray.length; i++) {
       newFlippedData[i] = false;
@@ -81,9 +101,36 @@ function App() {
 
   function checkIfComplete() {
     return !gameArray.some((el, ind) => {
-      console.log(flippedData[ind])
-      return !flippedData[ind]
+      return el !== null && !flippedData[ind]
     })
+  }
+
+  function handleChange(ev) {
+    let value = Math.floor(ev.target.value);
+    if (value < 3) {
+      value = 3;
+    } else if (value > 5) {
+      value = 5;
+    }
+    if (ev.target.name === "rows") {
+      init(value, numCols);
+      setNumRows(value);
+    } else if (ev.target.name === "columns") {
+      init(numRows, value);
+      setNumCols(value);
+    }
+  }
+
+  function getDimensions(type) {
+    const max = 80;
+    const unit = numRows > numCols ? max / numRows : max / numCols; 
+
+    if (type === "card-box") {
+      return { width: `${unit * numCols}${dimensions.smallest}`, height: `${unit * numRows}${dimensions.smallest}` }
+    } else if (type === "card") {
+      return { width: `${unit}${dimensions.smallest}`, height: `${unit}${dimensions.smallest}` }
+    }
+    
   }
 
   return (
@@ -91,25 +138,45 @@ function App() {
       {gameArray.length && (
         <div
           className="card-box"
-          style={{ width: `${10 * numCols}vw`, height: `${10 * numRows}vw` }}
+          style={getDimensions("card-box")}
         >
           {gameArray.map((el, ind) => (
+            el === null ?
+            <div style={getDimensions("card")} />
+            :
             <MatchCard
               image={images[el]}
               flipped={flippedData[ind]}
               setFlip={() => setFlip(ind)}
+              style={getDimensions("card")}
             />
           ))}
         </div>
       )}
-      <a href="https://www.freepik.com/free-photos-vectors/cartoon">
+      <Settings handleChange={handleChange} numRows={numRows} numCols={numCols}/>
+      <a className="credit" href="https://www.freepik.com/free-photos-vectors/cartoon">
         Cartoon vector created by freepik - www.freepik.com
       </a>
     </div>
   );
 }
 
-function MatchCard({ image, flipped, setFlip }) {
+function Settings(props) {
+  return (
+    <div className="input-box">
+      <label>
+        Rows:
+        <input name="rows" type="number" min={3} max={5} onChange={props.handleChange} value={props.numRows} />
+      </label>
+      <label>
+        Columns:
+        <input name="columns" type="number" min={3} max={5} onChange={props.handleChange} value={props.numCols} />
+      </label>
+    </div>
+  )
+}
+
+function MatchCard({ image, flipped, setFlip, style }) {
   function flip() {
     if (!flipped) {
       setFlip();
@@ -117,7 +184,7 @@ function MatchCard({ image, flipped, setFlip }) {
   }
 
   return (
-    <div onClick={flip} className={flipped ? "card flipped" : "card"}>
+    <div style={style} onClick={flip} className={flipped ? "card flipped" : "card"}>
       <div className="card-image-container">
         <img className="card-image" src={image} alt="" />
       </div>
