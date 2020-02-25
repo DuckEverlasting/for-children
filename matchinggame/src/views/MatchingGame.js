@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import useMountEffect from "../hooks/useMountEffect";
+import { AppSettings } from "../contexts/AppSettings";
 
 function shuffle(array) {
   let placeholder;
@@ -10,7 +12,9 @@ function shuffle(array) {
   });
 }
 
-function MatchingGame({dimensions, images}) {
+function MatchingGame() {
+  const { dimensions, images, navBarVisible } = useContext(AppSettings) 
+
   const [numRows, setNumRows] = useState(4);
   const [numCols, setNumCols] = useState(4);
   const [gameArray, setGameArray] = useState([]);
@@ -19,16 +23,14 @@ function MatchingGame({dimensions, images}) {
   const [hold, setHold] = useState(false);
   const [score, setScore] = useState(0);
 
-  useEffect(() => {
-    init();
-  }, []);
+  useMountEffect(init);
 
   useEffect(() => {
-    console.log("FINAL:", checkIfComplete());
-    // eslint-disable-next-line
-  }, [score])
+    // CHECK IF GAME IS OVER, TRIGGER ENDING
+  }, [score]);
 
-  function init(rows=numRows, cols=numCols) {
+  
+  function init(rows = numRows, cols = numCols) {
     const newGameArray = [];
     const newFlippedData = {};
     const pairs = Math.floor(rows * cols * 0.5);
@@ -37,8 +39,8 @@ function MatchingGame({dimensions, images}) {
       newGameArray.push(i, i);
     }
     shuffle(newGameArray);
-    if (rows * cols % 2) {
-      newGameArray.splice(pairs, 0, null)
+    if ((rows * cols) % 2) {
+      newGameArray.splice(pairs, 0, null);
     }
     setGameArray(newGameArray);
     for (let i = 0; i < newGameArray.length; i++) {
@@ -82,8 +84,8 @@ function MatchingGame({dimensions, images}) {
 
   function checkIfComplete() {
     return !gameArray.some((el, ind) => {
-      return el !== null && !flippedData[ind]
-    })
+      return el !== null && !flippedData[ind];
+    });
   }
 
   function handleChange(ev) {
@@ -104,40 +106,46 @@ function MatchingGame({dimensions, images}) {
 
   function getDimensions(type) {
     const max = 80;
-    const unit = numRows > numCols ? max / numRows : max / numCols; 
+    const unit = numRows > numCols ? max / numRows : max / numCols;
 
     if (type === "card-box") {
-      return { width: `${unit * numCols}${dimensions.smallest}`, height: `${unit * numRows}${dimensions.smallest}` }
+      return {
+        width: `${unit * numCols}${dimensions.smallest}`,
+        height: `${unit * numRows}${dimensions.smallest}`,
+      };
     } else if (type === "card") {
-      return { width: `${unit}${dimensions.smallest}`, height: `${unit}${dimensions.smallest}` }
+      return {
+        width: `${unit}${dimensions.smallest}`,
+        height: `${unit}${dimensions.smallest}`,
+      };
     }
-    
   }
 
   return (
     <div className="matching-game">
       {gameArray.length && (
-        <div
-          className="card-box"
-          style={getDimensions("card-box")}
-        >
-          {gameArray.map((el, ind) => (
-            el === null ?
-            <div style={getDimensions("card")} />
-            :
-            <MatchCard
-              image={images[el]}
-              flipped={flippedData[ind]}
-              setFlip={() => setFlip(ind)}
-              style={getDimensions("card")}
-            />
-          ))}
+        <div className="resize-wrapper" style={{transform: navBarVisible ? "scale(.875)" : "scale(1)"}}>
+          <div className="card-box" style={getDimensions("card-box")}>
+            {gameArray.map((el, ind) =>
+              el === null ? (
+                <div style={getDimensions("card")} />
+              ) : (
+                <MatchCard
+                  image={images[el]}
+                  flipped={flippedData[ind]}
+                  setFlip={() => setFlip(ind)}
+                  style={getDimensions("card")}
+                />
+              )
+            )}
+          </div>
         </div>
       )}
-      <Settings handleChange={handleChange} numRows={numRows} numCols={numCols}/>
-      <a className="credit" href="https://www.freepik.com/free-photos-vectors/cartoon">
-        Cartoon vector created by freepik - www.freepik.com
-      </a>
+      <Settings
+        handleChange={handleChange}
+        numRows={numRows}
+        numCols={numCols}
+      />
     </div>
   );
 }
@@ -147,14 +155,28 @@ function Settings(props) {
     <div className="input-box">
       <label>
         Rows:
-        <input name="rows" type="number" min={3} max={5} onChange={props.handleChange} value={props.numRows} />
+        <input
+          name="rows"
+          type="number"
+          min={3}
+          max={5}
+          onChange={props.handleChange}
+          value={props.numRows}
+        />
       </label>
       <label>
         Columns:
-        <input name="columns" type="number" min={3} max={5} onChange={props.handleChange} value={props.numCols} />
+        <input
+          name="columns"
+          type="number"
+          min={3}
+          max={5}
+          onChange={props.handleChange}
+          value={props.numCols}
+        />
       </label>
     </div>
-  )
+  );
 }
 
 function MatchCard({ image, flipped, setFlip, style }) {
@@ -165,7 +187,11 @@ function MatchCard({ image, flipped, setFlip, style }) {
   }
 
   return (
-    <div style={style} onClick={flip} className={flipped ? "card flipped" : "card"}>
+    <div
+      style={style}
+      onClick={flip}
+      className={flipped ? "card flipped" : "card"}
+    >
       <div className="card-image-container">
         <img className="card-image" src={image} alt="" />
       </div>
