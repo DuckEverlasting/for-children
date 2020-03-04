@@ -105,6 +105,39 @@ body {
   backface-visibility: hidden;
 }
 
+.spelling-game {
+  width: 100%;
+  height: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.spelling-game img {
+
+}
+
+.word-box {
+  display: flex;
+  justify-content: center;
+  width: auto;
+  background: #aab9cf;
+  border-radius: 20px;
+  margin: 20px;
+  padding: 5px 20px;
+}
+
+.letter-box {
+  display: flex;
+  justify-content: center;
+  width: 100px;
+}
+
+.letter {
+  font-size: 80px;
+}
+
 .credit {
   position: absolute;
   bottom: 1%;

@@ -131,7 +131,7 @@ function MatchingGame() {
                 <div style={getDimensions("card")} />
               ) : (
                 <MatchCard
-                  image={images[el]}
+                  image={images[el].image}
                   flipped={flippedData[ind]}
                   setFlip={() => setFlip(ind)}
                   style={getDimensions("card")}

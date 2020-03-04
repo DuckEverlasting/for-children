@@ -16,20 +16,20 @@ import Walrus from "./Walrus.png"
 import Zebra from "./Zebra.png"
 
 export const animals = [
-  Beaver,
-  Cat,
-  Chick,
-  Chicken,
-  Cow,
-  Dog,
-  Donkey,
-  Duck,
-  Elephant,
-  Lion,
-  Monkey,
-  Penguin,
-  Pig,
-  PolarBear,
-  Walrus,
-  Zebra
+  {name: "beaver", image: Beaver},
+  {name: "cat", image: Cat},
+  {name: "chick", image: Chick},
+  {name: "chicken", image: Chicken},
+  {name: "cow", image: Cow},
+  {name: "dog", image: Dog},
+  {name: "donkey", image: Donkey},
+  {name: "duck", image: Duck},
+  {name: "elephant", image: Elephant},
+  {name: "lion", image: Lion},
+  {name: "monkey", image: Monkey},
+  {name: "penguin", image: Penguin},
+  {name: "pig", image: Pig},
+  {name: "bear", image: PolarBear},
+  {name: "walrus", image: Walrus},
+  {name: "zebra", image: Zebra}
 ]
